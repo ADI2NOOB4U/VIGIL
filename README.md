@@ -51,13 +51,21 @@ More setup steps will be added soon.
 
 ---
 
-## ▶️ Usage
+## 🌍 Live Demo
 
+<p align="center">
+  <a href="https://vigil-hbc5.onrender.com" target="_blank">
+    <img src="https://img.shields.io/badge/Launch-App-black?style=for-the-badge&logo=render" />
+  </a>
+</p>
 
-# Run the application
-```bash
-python app.py
-```
+<p align="center">
+  👉 <strong>https://vigil-hbc5.onrender.com</strong>
+</p>
+
+<p align="center">
+  ⚡ Real-time phishing detection system in action
+</p>
 
 ## 🌐 Browser Extension
 
