@@ -3,6 +3,24 @@ import pickle
 from feature_extractor import extract_features
 
 # Load model + feature names
+import requests
+import pickle
+import os
+
+MODEL_URL = "YOUR_MODEL_LINK"
+FEATURE_URL = "YOUR_FEATURE_LINK"
+
+def download_file(url, filename):
+    if not os.path.exists(filename):
+        r = requests.get(url)
+        with open(filename, "wb") as f:
+            f.write(r.content)
+
+# Download once
+download_file(MODEL_URL, "phishing_model.pkl")
+download_file(FEATURE_URL, "feature_names.pkl")
+
+# Load
 model = pickle.load(open("phishing_model.pkl", "rb"))
 feature_names = pickle.load(open("feature_names.pkl", "rb"))
 

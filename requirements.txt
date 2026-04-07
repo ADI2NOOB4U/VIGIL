@@ -7,3 +7,4 @@ numpy
 psutil
 streamlit
 streamlit-autorefresh
+requests
