@@ -1,11 +1,8 @@
 import pandas as pd
-import pickle
-from feature_extractor import extract_features
-
-# Load model + feature names
 import requests
 import pickle
 import os
+from feature_extractor import extract_features
 
 MODEL_URL = "https://drive.google.com/uc?id=1bqVkYbeC-tM_LEQOwZ2ufAuB29QOxdNU"
 FEATURE_URL = "https://drive.google.com/uc?id=1MZsRELGflCX95pDBawHx77vH20Z1Aein"
@@ -13,16 +10,22 @@ FEATURE_URL = "https://drive.google.com/uc?id=1MZsRELGflCX95pDBawHx77vH20Z1Aein"
 def download_file(url, filename):
     if not os.path.exists(filename):
         r = requests.get(url)
-        with open(filename, "wb") as f:
-            f.write(r.content)
+        if r.status_code == 200:
+            with open(filename, "wb") as f:
+                f.write(r.content)
+        else:
+            raise Exception(f"Failed to download {filename}")
 
 # Download once
 download_file(MODEL_URL, "phishing_model.pkl")
 download_file(FEATURE_URL, "feature_names.pkl")
 
 # Load
-model = pickle.load(open("phishing_model.pkl", "rb"))
-feature_names = pickle.load(open("feature_names.pkl", "rb"))
+with open("phishing_model.pkl", "rb") as f:
+    model = pickle.load(f)
+
+with open("feature_names.pkl", "rb") as f:
+    feature_names = pickle.load(f)
 
 def check_phishing(url: str):
     try:
@@ -48,7 +51,7 @@ def check_phishing(url: str):
         if prob > 0.7:
             result = "PHISHING"
         elif prob > 0.4:
-            result = " SUSPICIOUS"
+            result = "SUSPICIOUS"
         else:
             result = "SAFE"
 
