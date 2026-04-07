@@ -5,7 +5,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/AI-Powered-blue?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Security-Phishing%20Detection-red?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Hackathon-Project-green?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Smart-Defence-green?style=for-the-badge" />
 </p>
 
 ---
