@@ -47,9 +47,7 @@ D -->|Phishing| F[Block & Warn User]
 
 > 🚧 *Setup instructions coming soon — currently under refinement.*
 
-```bash
-# Clone the repository
-git clone https://github.com/your-username/vigil-is-online.git
+
 
 # More setup steps will be added soon
 ```
