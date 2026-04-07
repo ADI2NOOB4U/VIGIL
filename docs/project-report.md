@@ -192,9 +192,4 @@ It moves beyond traditional reactive approaches and offers a scalable solution t
 
 ---
 
-## 🏆 Hackathon Value
 
-- Real-world impact  
-- End-to-end implementation  
-- Strong technical depth  
-- Scalable and practical solution  
