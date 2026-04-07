@@ -4,15 +4,18 @@ Clean rebuild: real system monitoring + real ML phishing detection
 """
 from streamlit_autorefresh import st_autorefresh
 import streamlit as st
+import streamlit.components.v1 as components
 import time
 import pickle
 from datetime import datetime
 
 import psutil
 from phishing_detector import check_phishing
+
 # ✅ history init
 if "history" not in st.session_state:
     st.session_state["history"] = []
+
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="VIGIL + NeuroGuard AI",
@@ -56,7 +59,7 @@ st.markdown("""
 }
 .glass-card::-webkit-scrollbar {
     width: 4px;
-}   
+}
 html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     background: var(--bg) !important;
     color: var(--text) !important;
@@ -174,7 +177,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     text-transform: uppercase !important;
 }
 
-/* 🔥 DEFAULT CYAN HOVER */
+/* DEFAULT CYAN HOVER */
 .stButton > button:hover {
     background: rgba(0,245,255,0.12) !important;
     box-shadow:
@@ -184,7 +187,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     transform: translateY(-1px);
 }
 
-/* 🔴 PHISHING (RED GLOW) */
+/* PHISHING (RED GLOW) */
 .phishing-btn button:hover {
     box-shadow:
         0 0 10px rgba(255,34,68,0.7),
@@ -194,7 +197,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     color: #ff2244 !important;
 }
 
-/* 🟡 SUSPICIOUS (YELLOW GLOW) */
+/* SUSPICIOUS (YELLOW GLOW) */
 .suspicious-btn button:hover {
     box-shadow:
         0 0 10px rgba(255,230,0,0.7),
@@ -204,7 +207,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     color: #ffe600 !important;
 }
 
-/* 🟢 SAFE (GREEN GLOW) */
+/* SAFE (GREEN GLOW) */
 .safe-btn button:hover {
     box-shadow:
         0 0 10px rgba(0,255,136,0.7),
@@ -213,7 +216,6 @@ button[data-baseweb="tab"][aria-selected="true"] {
     border-color: #00ff88 !important;
     color: #00ff88 !important;
 }
-
 
 /* Progress bar */
 [data-testid="stProgressBar"] > div > div {
@@ -227,7 +229,8 @@ button[data-baseweb="tab"][aria-selected="true"] {
     font-family: 'Share Tech Mono', monospace; font-size: 0.65rem;
     color: rgba(200,240,255,0.3); letter-spacing: 0.15em; margin-top: 2rem;
 }
-/* 🔥 Glow Pulse Animation */
+
+/* Glow Pulse Animation */
 @keyframes glowPulse {
     0% {
         box-shadow: 0 0 5px rgba(0,245,255,0.4),
@@ -324,15 +327,15 @@ with tab_monitor:
                         color:rgba(200,240,255,0.35);margin-bottom:0.8rem;">MEMORY DETAIL</div>
             <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:0.78rem;">
                 <span style="color:rgba(200,240,255,0.45);">Used</span>
-                <span style="color:#00f5ff;">{ram.used / 1e9:.2f} GB</span>
+                <span style="color:#00f5ff;">{ram.used / (1024**3):.2f} GB</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:0.78rem;margin-top:0.4rem;">
                 <span style="color:rgba(200,240,255,0.45);">Available</span>
-                <span style="color:#00ff88;">{ram.available / 1e9:.2f} GB</span>
+                <span style="color:#00ff88;">{ram.available / (1024**3):.2f} GB</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:0.78rem;margin-top:0.4rem;">
                 <span style="color:rgba(200,240,255,0.45);">Total</span>
-                <span style="color:#a855f7;">{ram.total / 1e9:.2f} GB</span>
+                <span style="color:#a855f7;">{ram.total / (1024**3):.2f} GB</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -343,15 +346,15 @@ with tab_monitor:
                         color:rgba(200,240,255,0.35);margin-bottom:0.8rem;">DISK DETAIL</div>
             <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:0.78rem;">
                 <span style="color:rgba(200,240,255,0.45);">Used</span>
-                <span style="color:#00f5ff;">{disk.used / 1e9:.1f} GB</span>
+                <span style="color:#00f5ff;">{disk.used / (1024**3):.1f} GB</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:0.78rem;margin-top:0.4rem;">
                 <span style="color:rgba(200,240,255,0.45);">Free</span>
-                <span style="color:#00ff88;">{disk.free / 1e9:.1f} GB</span>
+                <span style="color:#00ff88;">{disk.free / (1024**3):.1f} GB</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:0.78rem;margin-top:0.4rem;">
                 <span style="color:rgba(200,240,255,0.45);">Total</span>
-                <span style="color:#a855f7;">{disk.total / 1e9:.1f} GB</span>
+                <span style="color:#a855f7;">{disk.total / (1024**3):.1f} GB</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -364,54 +367,51 @@ with tab_monitor:
 
     procs = []
 
-# init
-for p in psutil.process_iter(["pid", "name"]):
-    try:
-        p.cpu_percent(None)
-    except:
-        pass
+    # init
+    for p in psutil.process_iter(["pid", "name"]):
+        try:
+            p.cpu_percent(None)
+        except:
+            pass
+        time.sleep(0.5)   # stable reading
 
-time.sleep(1)   # ✅ stable reading
+    # actual values
+    for p in psutil.process_iter(["pid", "name", "cpu_percent", "memory_percent"]):
+        try:
+            if p.info["name"] != "System Idle Process":
+                procs.append(p.info)
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
 
-# actual values
-for p in psutil.process_iter(["pid", "name", "cpu_percent", "memory_percent"]):
-    try:
-        if p.info["name"] != "System Idle Process":   # ✅ remove fake
-            procs.append(p.info)
-    except (psutil.NoSuchProcess, psutil.AccessDenied):
-        pass
+    top5 = sorted(procs, key=lambda x: min(x.get("cpu_percent") or 0, 100), reverse=True)[:5]
 
-top5 = sorted(procs, key=lambda x: min(x.get("cpu_percent") or 0, 100), reverse=True)[:5]
-
-header_row = """
-<div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:0.5rem;
-            padding:0.5rem 1rem;font-family:'Orbitron',sans-serif;font-size:0.58rem;
-            letter-spacing:.12em;color:rgba(200,240,255,0.3);border-bottom:1px solid rgba(0,245,255,0.1);">
-    <span>PROCESS</span><span style="text-align:right;">CPU %</span><span style="text-align:right;">MEM %</span>
-</div>"""
-st.markdown(f'<div class="glass-card" style="padding:0.8rem;">{header_row}', unsafe_allow_html=True)
-
-for proc in top5:
-    cpu_c = color_for(proc.get("cpu_percent") or 0)
-    st.markdown(f"""
+    header_row = """
     <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:0.5rem;
-                padding:0.55rem 1rem;font-family:'Share Tech Mono',monospace;font-size:0.75rem;
-                border-bottom:1px solid rgba(0,245,255,0.06);">
-        <span style="color:#c8f0ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-            {proc.get('name','—')}</span>
-        <span style="text-align:right;color:{cpu_c};">{proc.get('cpu_percent',0):.1f}%</span>
-        <span style="text-align:right;color:#a855f7;">{proc.get('memory_percent',0):.1f}%</span>
-    </div>
-    """, unsafe_allow_html=True)
+                padding:0.5rem 1rem;font-family:'Orbitron',sans-serif;font-size:0.58rem;
+                letter-spacing:.12em;color:rgba(200,240,255,0.3);border-bottom:1px solid rgba(0,245,255,0.1);">
+        <span>PROCESS</span><span style="text-align:right;">CPU %</span><span style="text-align:right;">MEM %</span>
+    </div>"""
+    st.markdown(f'<div class="glass-card" style="padding:0.8rem;">{header_row}', unsafe_allow_html=True)
 
-st.markdown("</div>", unsafe_allow_html=True)
+    for proc in top5:
+        cpu_c = color_for(proc.get("cpu_percent") or 0)
+        st.markdown(f"""
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:0.5rem;
+                    padding:0.55rem 1rem;font-family:'Share Tech Mono',monospace;font-size:0.75rem;
+                    border-bottom:1px solid rgba(0,245,255,0.06);">
+            <span style="color:#c8f0ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                {proc.get('name','—')}</span>
+            <span style="text-align:right;color:{cpu_c};">{proc.get('cpu_percent',0):.1f}%</span>
+            <span style="text-align:right;color:#a855f7;">{proc.get('memory_percent',0):.1f}%</span>
+        </div>
+        """, unsafe_allow_html=True)
 
-    # Auto-refresh every 2 seconds
-if auto_refresh:
-    time.sleep(1)   # ✅ 1 sec refresh
-    st.rerun()
-else:
-    time.sleep(5)   # ✅ normal mode slower refresh
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # ✅ TASK 2 FIX: Auto-refresh INSIDE with tab_monitor, at the END
+    if auto_refresh:
+        time.sleep(1)
+        st.rerun()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -437,21 +437,16 @@ def scan_url(url: str) -> dict:
         score = prob * 100
         url_lower = url.lower()
 
-        # 🔥 smarter boosting (safe, no break)
+        # smarter boosting (safe, no break)
         suspicious_words = ["login", "bank", "secure", "verify", "update", "account", "free"]
-        if any(word in url_lower for word in suspicious_words):
-            score += 20
-
-        if any(char.isdigit() for char in url):
-            score += 10
-
-        if "@" in url:
-            score += 15
-
-        if "-" in url:
-            score += 5
-
-        # 🚫 slight penalty if HTTPS (reduces false positives)
+        # ✅ smarter boosting (reduce false positives)
+        if score > 40:
+            suspicious_words = ["login", "bank", "secure", "verify", "update", "account", "free"]
+            if any(word in url_lower for word in suspicious_words):
+                score += 15
+            if "@" in url:
+                score += 10
+        # slight penalty if HTTPS (reduces false positives)
         if url.startswith("https"):
             score -= 5
 
@@ -484,6 +479,8 @@ def scan_url(url: str) -> dict:
             "features": {}
         }
 
+
+# ✅ TASK 1 FIX: uses components.html() to bypass Streamlit's HTML sanitizer
 def render_result_card(r: dict):
     key_features = {
         k: r["features"][k]
@@ -491,50 +488,112 @@ def render_result_card(r: dict):
                   "HasObfuscation", "NoOfQMarkInURL", "NoOfAmpersandInURL"]
         if k in r["features"]
     }
-    feat_html = "".join(
-        f'<div style="display:flex;justify-content:space-between;padding:0.3rem 0;'
-        f'border-bottom:1px solid rgba(0,245,255,0.06);">'
-        f'<span style="color:rgba(200,240,255,0.45);font-size:0.72rem;">{k}</span>'
-        f'<span style="color:#00f5ff;font-family:\'Share Tech Mono\',monospace;font-size:0.72rem;">{v}</span>'
-        f'</div>'
-        for k, v in key_features.items()
-    )
 
-    st.markdown(f"""
-    <div class="glass-card" style="border-color:{r['color']}44; max-width:500px; margin:auto; max-height:400px; overflow:auto;">
-        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
-            <span style="font-size:2rem;">{r['icon']}</span>
+    feat_html = ""
+    for k, v in key_features.items():
+        feat_html += f"""
+        <div style="display:flex;justify-content:space-between;padding:0.3rem 0;
+                    border-bottom:1px solid rgba(0,245,255,0.06);">
+            <span style="color:rgba(200,240,255,0.45);font-size:0.72rem;
+                         font-family:'Rajdhani',sans-serif;">{k}</span>
+            <span style="color:#00f5ff;font-family:'Share Tech Mono',monospace;
+                         font-size:0.72rem;">{v}</span>
+        </div>
+        """
+
+    card_height = 200 + len(key_features) * 36
+
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&family=Rajdhani:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+        body {{
+            background: transparent;
+            font-family: 'Rajdhani', sans-serif;
+        }}
+        .card {{
+            background: rgba(0,245,255,0.04);
+            border: 1px solid {r['color']}44;
+            border-radius: 12px;
+            padding: 1.2rem 1.4rem;
+            position: relative;
+            overflow: hidden;
+            max-width: 480px;
+            margin: 0 auto;
+        }}
+        .card::before {{
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, {r['color']}, transparent);
+            opacity: 0.5;
+        }}
+        .header {{ display:flex; align-items:center; gap:0.9rem; margin-bottom:1rem; }}
+        .icon {{ font-size:2rem; line-height:1; }}
+        .label {{
+            font-family:'Orbitron',sans-serif; font-size:1.05rem; font-weight:900;
+            color:{r['color']}; text-shadow:0 0 16px {r['color']}88;
+        }}
+        .url {{
+            font-size:0.68rem; color:rgba(200,240,255,0.45);
+            word-break:break-all; margin-top:0.2rem;
+            font-family:'Share Tech Mono',monospace;
+        }}
+        .score-label {{
+            display:flex; justify-content:space-between; align-items:center;
+            margin-bottom:0.35rem;
+        }}
+        .score-title {{
+            font-family:'Orbitron',sans-serif; font-size:0.55rem;
+            letter-spacing:0.18em; color:rgba(200,240,255,0.3);
+        }}
+        .score-value {{
+            font-family:'Orbitron',sans-serif; font-size:0.8rem; font-weight:800;
+            color:{r['color']};
+        }}
+        .bar-track {{
+            height:7px; background:rgba(0,245,255,0.08);
+            border-radius:99px; overflow:hidden; margin-bottom:0.2rem;
+        }}
+        .bar-fill {{
+            height:100%; width:{r['score']:.1f}%;
+            background:{r['color']};
+            border-radius:99px;
+            box-shadow:0 0 8px {r['color']}88;
+        }}
+        .section-title {{
+            font-family:'Orbitron',sans-serif; font-size:0.55rem;
+            letter-spacing:0.18em; color:rgba(200,240,255,0.28);
+            margin:0.8rem 0 0.4rem;
+        }}
+        .divider {{ height:1px; background:rgba(0,245,255,0.08); margin:0.6rem 0; }}
+    </style>
+    </head>
+    <body>
+    <div class="card">
+        <div class="header">
+            <span class="icon">{r['icon']}</span>
             <div>
-                <div style="font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:900;
-                            color:{r['color']};text-shadow:0 0 20px {r['color']};">
-                    {r['label']}
-                </div>
-                <div style="font-family:'Share Tech Mono',monospace;font-size:0.68rem;
-                            color:rgba(200,240,255,0.5);margin-top:0.2rem;word-break:break-all;">
-                    {r['url']}
-                </div>
+                <div class="label">{r['label']}</div>
+                <div class="url">{r['url'].replace("<","&lt;").replace(">","&gt;")}</div>
             </div>
         </div>
-
-        <div style="margin-bottom:0.6rem;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;">
-                <span style="font-family:'Orbitron',sans-serif;font-size:0.6rem;
-                             letter-spacing:.15em;color:rgba(200,240,255,0.35);">RISK SCORE</span>
-                <span style="font-family:'Orbitron',sans-serif;font-size:0.75rem;font-weight:700;
-                             color:{r['color']};">{r['score']:.1f}%</span>
-            </div>
-            <div style="height:8px;background:rgba(0,245,255,0.08);border-radius:4px;overflow:hidden;">
-                <div style="height:100%;width:{r['score']:.1f}%;
-                            background:linear-gradient(90deg,{r['color']}88,{r['color']});
-                            border-radius:4px;transition:width 0.5s ease;"></div>
-            </div>
+        <div class="divider"></div>
+        <div class="score-label">
+            <span class="score-title">RISK SCORE</span>
+            <span class="score-value">{r['score']:.1f}%</span>
         </div>
-
-        <div style="font-family:'Orbitron',sans-serif;font-size:0.6rem;letter-spacing:.15em;
-                    color:rgba(200,240,255,0.35);margin:0.8rem 0 0.4rem;">KEY FEATURES</div>
+        <div class="bar-track"><div class="bar-fill"></div></div>
+        <div class="section-title">KEY FEATURES</div>
         {feat_html}
     </div>
-    """, unsafe_allow_html=True)
+    </body>
+    </html>
+    """
+
+    components.html(html, height=card_height, scrolling=False)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -543,7 +602,7 @@ def render_result_card(r: dict):
 with tab_vigil:
 
     st.markdown("""
-    <div class="glass-card">
+    <div class="glass-card" style="max-width:600px;margin:auto;">
         <div style="font-family:'Orbitron',sans-serif;font-size:0.65rem;letter-spacing:.2em;
                     color:rgba(200,240,255,0.35);margin-bottom:0.3rem;">SINGLE URL ANALYSIS</div>
         <div style="font-family:'Rajdhani',sans-serif;font-size:1rem;color:rgba(200,240,255,0.6);">
@@ -553,33 +612,46 @@ with tab_vigil:
     """, unsafe_allow_html=True)
 
     url_input = st.text_input(
-    "TARGET URL",
-    placeholder="https://example.com/page?param=value",
-    key="url_input"
-)
+        "TARGET URL",
+        placeholder="https://example.com/page?param=value",
+        key="url_input"
+    )
+
+    # ✅ TASK 3: Auto-scan trigger on URL change
+    if url_input and url_input != st.session_state.get("last_url"):
+        st.session_state["last_url"] = url_input
+        st.session_state["auto_scan"] = True
 
     st.markdown(
-    "<small style='color:rgba(200,240,255,0.35);'>⬡ Press Scan to analyze URL</small>",
-    unsafe_allow_html=True
-)
+        "<small style='color:rgba(200,240,255,0.35);'>⬡ Press Scan to analyze URL</small>",
+        unsafe_allow_html=True
+    )
+
     col_scan, col_clear, _ = st.columns([1, 1, 5])
+    import webbrowser
+
+    if st.button("🚀 Open Full NeuroGuard Dashboard"):
+        webbrowser.open("http://localhost:8502")
+
     with col_scan:
         st.markdown('<div class="safe-btn">', unsafe_allow_html=True)
-    scan_btn = st.button("⬡  SCAN URL", key="scan_btn")
-    st.markdown('</div>', unsafe_allow_html=True)
+        scan_btn = st.button("⬡  SCAN URL", key="scan_btn")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-with col_clear:
-    st.markdown('<div class="phishing-btn">', unsafe_allow_html=True)
-    clear_btn = st.button("✕  CLEAR", key="clear_btn")
-    st.markdown('</div>', unsafe_allow_html=True)
+    with col_clear:
+        st.markdown('<div class="phishing-btn">', unsafe_allow_html=True)
+        clear_btn = st.button("✕  CLEAR", key="clear_btn")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # ✅ CLEAR BUTTON
     if clear_btn:
         st.session_state.pop("single_result", None)
         st.rerun()
 
-    # ✅ SCAN BUTTON (CORRECT POSITION)
-    if scan_btn:
+    # ✅ TASK 3: SCAN BUTTON + AUTO SCAN combined trigger
+    if scan_btn or st.session_state.get("auto_scan"):
+        st.session_state["auto_scan"] = False
+
         url = url_input.strip()
         if not url:
             st.warning("Please enter a URL before scanning.")
@@ -594,12 +666,14 @@ with col_clear:
                 prog = st.progress(0)
                 for pct, msg in steps:
                     prog.progress(pct, text=f"⬡  {msg}")
-                    time.sleep(0.25)
+                    time.sleep(0.1)
                 prog.empty()
                 result = scan_url(url)
 
             st.session_state["single_result"] = result
-            st.session_state.setdefault("history", []).insert(0, result)
+            if result["label"] != "ERROR":
+                st.session_state.setdefault("history", []).insert(0, result)
+                st.session_state["history"] = st.session_state["history"][:10]
 
     # ✅ RESULT + HISTORY
     if "single_result" in st.session_state:
@@ -607,7 +681,8 @@ with col_clear:
 
         if st.session_state["history"]:
             st.markdown(f"### 🕘 Scan History  •  Total Scans: {len(st.session_state['history'])}")
-            if st.button("🧹 Clear History", disabled=not st.session_state["history"], help="Clears all previous scans"):
+
+            if st.button("🧹 Clear History", disabled=not st.session_state["history"]):
                 st.session_state["history"] = []
                 st.rerun()
 
@@ -616,7 +691,7 @@ with col_clear:
                 <div style="border:1px solid {r['color']}44;padding:0.5rem 0.8rem;
                             border-radius:8px;margin-bottom:0.4rem;
                             display:flex;justify-content:space-between;">
-                    <span style="font-size:0.75rem;">{r['icon']} {r['url'][:60]}</span>
+                    <span style="font-size:0.75rem;">{r['icon']} {r['url'][:60].replace("<", "&lt;").replace(">", "&gt;")}</span>
                     <span style="color:{r['color']};font-weight:600;">{r['label']}</span>
                 </div>
                 """, unsafe_allow_html=True)

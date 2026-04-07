@@ -2,9 +2,12 @@
   "manifest_version": 3,
   "name": "VIGIL Phishing Detector",
   "version": "1.0",
+
   "permissions": ["activeTab", "scripting", "tabs"],
-  "host_permissions": ["http://127.0.0.1:5000/*"],
-  
+
+  "host_permissions": [
+    "https://vigil-api-5sed.onrender.com/*"
+  ],
 
   "action": {
     "default_popup": "popup.html"

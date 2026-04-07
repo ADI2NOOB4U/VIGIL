@@ -41,10 +41,10 @@ scanBtn.addEventListener("click", () => {
 
       // ⏱️ Timeout safety
       const controller = new AbortController();
-      setTimeout(() => controller.abort(), 5000);
+      setTimeout(() => controller.abort(), 10000);
 
       // 🔗 API CALL
-      const res = await fetch("http://127.0.0.1:5000/scan", {
+      const res = await fetch("https://vigil-api-5sed.onrender.com/scan", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
