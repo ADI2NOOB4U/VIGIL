@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "VIGIL Phishing Detector",
+  "version": "1.0",
+  "permissions": ["activeTab", "scripting", "tabs"],
+  "host_permissions": ["http://127.0.0.1:5000/*"],
+  
+
+  "action": {
+    "default_popup": "popup.html"
+  },
+
+  "background": {
+    "service_worker": "background.js"
+  }
+}
