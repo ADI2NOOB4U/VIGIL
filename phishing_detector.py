@@ -7,8 +7,8 @@ import requests
 import pickle
 import os
 
-MODEL_URL = "YOUR_MODEL_LINK"
-FEATURE_URL = "YOUR_FEATURE_LINK"
+MODEL_URL = "https://drive.google.com/uc?id=1bqVkYbeC-tM_LEQOwZ2ufAuB29QOxdNU"
+FEATURE_URL = "https://drive.google.com/uc?id=1MZsRELGflCX95pDBawHx77vH20Z1Aein"
 
 def download_file(url, filename):
     if not os.path.exists(filename):
