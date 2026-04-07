@@ -4,7 +4,7 @@ import math
 
 def shannon_entropy(s):
     prob = [float(s.count(c)) / len(s) for c in dict.fromkeys(list(s))]
-    return -sum([p * math.log2(p) for p in prob])
+    return -sum([p * math.log2(p) for p in prob if p > 0])
 
 def extract_features(url):
     features = {}
