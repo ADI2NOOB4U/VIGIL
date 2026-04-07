@@ -47,10 +47,7 @@ D -->|Phishing| F[Block & Warn User]
 
 > 🚧 *Setup instructions coming soon — currently under refinement.*
 
-
-
-# More setup steps will be added soon
-```
+More setup steps will be added soon.
 
 ---
 
@@ -60,8 +57,6 @@ D -->|Phishing| F[Block & Warn User]
 # Run the application
 python app.py
 ```
-
----
 
 ## 🌐 Browser Extension
 
