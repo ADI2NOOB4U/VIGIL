@@ -10,13 +10,16 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 print("🚀 Loading dataset...")
 
 # Load dataset
-df = pd.read_csv("final_dataset.csv")
+df = pd.read_csv("final_dataset_v2.csv")
+df = df.sample(frac=1, random_state=42).reset_index(drop=True)
 
 # Basic cleaning
 df = df[['url', 'label']].dropna()
 df = df.drop_duplicates()
 
 print(f"📊 Total samples: {len(df)}")
+print("\n📊 Label distribution:")
+print(df['label'].value_counts())
 
 # =========================
 # FEATURE EXTRACTION
@@ -52,14 +55,13 @@ print("📊 Test size:", len(X_test))
 print("🧠 Training model...")
 
 model = RandomForestClassifier(
-    n_estimators=300,        # more trees = better accuracy
-    max_depth=20,            # deeper learning
-    min_samples_split=2,
-    min_samples_leaf=1,
-    n_jobs=-1,               # use all CPU cores
+    n_estimators=400,       # more trees
+    max_depth=None,         # allow full depth
+    min_samples_split=5,    # reduce overfitting
+    min_samples_leaf=2,     # smoother decisions
+    n_jobs=-1,
     random_state=42
 )
-
 model.fit(X_train, y_train)
 
 # =========================

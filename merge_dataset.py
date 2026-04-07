@@ -5,51 +5,71 @@ files = [
     "malicious_phish.csv",
     "PhiUSIIL_Phishing_URL_Dataset.csv",
     "dataset_phishing.csv",
-    "fixed_dataset_phishing.csv"  # ✅ ADD THIS
+    "fixed_dataset_phishing.csv"
 ]
 
 dfs = []
 
 for file in files:
     print(f"Processing: {file}")
+    
     try:
         df = pd.read_csv(file)
     except:
-        print(f"❌ File missing: {file}")
-    continue
-
-    # fix duplicate columns
-    df.columns = [f"{col}_{i}" if list(df.columns).count(col) > 1 else col 
-              for i, col in enumerate(df.columns)]
-    df.columns = [c.lower() for c in df.columns]
-    df = df.loc[:, ~df.columns.duplicated()]
-
-    # fix url
-    for col in df.columns:
-        if 'url' in col:
-            df.rename(columns={col: 'url'}, inplace=True)
-
-    # fix label
-    for col in df.columns:
-        if 'label' in col or 'class' in col or 'result' in col or 'type' in col:
-            df.rename(columns={col: 'label'}, inplace=True)
-
-    # skip bad files
-    if 'url' not in df.columns or 'label' not in df.columns:
-        print(f"❌ Skipped {file}")
+        print(f"❌ Skipped (missing): {file}")
         continue
 
-    temp = df[['url', 'label']].copy()
-temp = df[['url', 'label']].copy()
-dfs.append(temp)
+    # Normalize column names
+    df.columns = df.columns.str.lower()
 
-# merge
-dfs = [d.reset_index(drop=True) for d in dfs]
+    # Find URL column
+    url_col = None
+    for col in df.columns:
+        if "url" in col:
+            url_col = col
+            break
+
+    # Find label column
+    label_col = None
+    for col in df.columns:
+        if col in ["label", "class", "result", "type", "status"]:
+            label_col = col
+            break
+
+    if url_col is None or label_col is None:
+        print(f"❌ Skipped (bad format): {file}")
+        continue
+
+    temp = df[[url_col, label_col]].copy()
+    temp.columns = ["url", "label"]
+
+    dfs.append(temp)
+
+# 🔥 Merge ALL datasets correctly
 final_df = pd.concat(dfs, ignore_index=True)
 
-# clean
-final_df = final_df.dropna().drop_duplicates()
+# Clean
+final_df = final_df.dropna()
+final_df = final_df.drop_duplicates()
 
+# Normalize labels
+final_df["label"] = final_df["label"].astype(str).str.lower()
+final_df["label"] = final_df["label"].map({
+    "legitimate": 0,
+    "benign": 0,
+    "safe": 0,
+    "0": 0,
+    "phishing": 1,
+    "malicious": 1,
+    "1": 1
+})
+
+final_df = final_df.dropna()
+
+print("📊 Final dataset size:", len(final_df))
+print(final_df["label"].value_counts())
+
+# Save
 final_df.to_csv("final_dataset.csv", index=False)
 
-print("✅ DONE:", len(final_df))
+print("✅ final_dataset.csv READY")

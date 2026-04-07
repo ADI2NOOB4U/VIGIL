@@ -6,7 +6,8 @@
   "permissions": ["activeTab", "scripting", "tabs"],
 
   "host_permissions": [
-    "https://vigil-api-5sed.onrender.com/*"
+    "https://vigil-api-5sed.onrender.com/*",
+    "http://127.0.0.1:5000/*"
   ],
 
   "action": {

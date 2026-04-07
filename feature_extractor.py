@@ -66,5 +66,25 @@ def extract_features(url):
 
     # ── URL entropy (random-looking URLs) ─
     features["URLEntropy"] = shannon_entropy(url) if len(url) > 0 else 0
+    # ── Trusted Brand Detection (VERY IMPORTANT) ──
+    trusted_brands = ["amazon", "google", "github", "facebook", "microsoft", "apple"]
+
+    features["HasTrustedBrand"] = int(
+        any(brand in domain.lower() for brand in trusted_brands)
+    )
+
+    # ── Trusted TLD ──
+    trusted_tlds = [".com", ".org", ".net", ".edu", ".gov"]
+
+    features["IsTrustedTLD"] = int(
+        any(domain.endswith(tld) for tld in trusted_tlds)
+    )
+
+    # ── URL Shortener Detection ──
+    shorteners = ["bit.ly", "tinyurl", "t.co", "goo.gl"]
+
+    features["IsShortened"] = int(
+        any(s in domain for s in shorteners)
+    )
 
     return features

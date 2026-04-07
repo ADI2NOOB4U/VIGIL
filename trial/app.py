@@ -11,9 +11,7 @@ from datetime import datetime
 
 import psutil
 from phishing_detector import check_phishing
-# 🔥 ADD THIS LINE
-st.session_state.setdefault("ext_url", "")
-st.session_state.setdefault("auto_scan", False)
+
 # ✅ history init
 if "history" not in st.session_state:
     st.session_state["history"] = []
@@ -619,30 +617,11 @@ with tab_vigil:
     </div>
     """, unsafe_allow_html=True)
 
-    
-    # 🔥 AUTO INPUT FROM EXTENSION (fallback = manual input)
-    # 🔥 FETCH URL FROM EXTENSION BACKEND
-    import requests
-    try:
-        res = requests.get("https://vigil-hbc5.onrender.com", timeout=2)
-        if res.status_code == 200:
-            data = res.json()
-            if data.get("url"):
-                st.session_state["ext_url"] = data["url"]
-                st.session_state["auto_scan"] = True
-    except:
-        pass
     url_input = st.text_input(
         "TARGET URL",
-        value=st.session_state.get("ext_url", ""),
         placeholder="https://example.com/page?param=value",
         key="url_input"
-)
-
-# 🔥 AUTO TRIGGER SCAN WHEN EXTENSION UPDATES
-if url_input and url_input != st.session_state.get("last_url"):
-    st.session_state["last_url"] = url_input
-    st.session_state["auto_scan"] = True
+    )
 
     # ✅ TASK 3: Auto-scan trigger on URL change
     if url_input and url_input != st.session_state.get("last_url"):

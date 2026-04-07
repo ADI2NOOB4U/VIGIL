@@ -39,29 +39,12 @@ scanBtn.addEventListener("click", () => {
         await new Promise(r => setTimeout(r, 300));
       }
 
-      // // ⏱️ Timeout safety
+      // ⏱️ Timeout safety
       const controller = new AbortController();
       setTimeout(() => controller.abort(), 10000);
 
-      // 🔥 ADD THIS BLOCK HERE (EXACT POSITION)
-    try {
-      await fetch("http://127.0.0.1:5000/extension", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ url })
-      });
-
-      console.log("URL sent to extension API:", url);
-      console.log("Extension API success");
-
-} catch (err) {
-  console.log("Extension API failed");
-}
-
-  // 🔗 API CALL (DO NOT TOUCH)
-  const res = await fetch("http://127.0.0.1:5000/scan", {
+      // 🔗 API CALL
+      const res = await fetch("https://vigil-api-5sed.onrender.com/scan", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -69,7 +52,7 @@ scanBtn.addEventListener("click", () => {
         body: JSON.stringify({ url }),
         signal: controller.signal
       });
-      
+
       const data = await res.json();
       const percent = Math.round(data.confidence * 100);
 
@@ -78,14 +61,14 @@ scanBtn.addEventListener("click", () => {
       let message = "✅ Looks safe.";
       let icon = "✔️";
 
-      if (percent >= 85) {
-      cls = "result-danger";
-      message = "🚨 High risk phishing site!";
-      icon = "🚨";
-      }else if (percent >= 60) {
-      cls = "result-warn";
-      message = "⚠️ Suspicious, proceed carefully.";
-      icon = "⚠️";
+      if (percent >= 75) {
+        cls = "result-danger";
+        message = "🚨 High risk phishing site!";
+        icon = "🚨";
+      } else if (percent >= 45) {
+        cls = "result-warn";
+        message = "⚠️ Suspicious, proceed carefully.";
+        icon = "⚠️";
       }
 
       resultDiv.className = cls;
@@ -143,6 +126,9 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !isScanning) {
     scanBtn.click();
   }
+});
+resultDiv.addEventListener("click", () => {
+  navigator.clipboard.writeText(resultDiv.innerText);
 });
 resultDiv.addEventListener("click", () => {
   navigator.clipboard.writeText(resultDiv.innerText);
