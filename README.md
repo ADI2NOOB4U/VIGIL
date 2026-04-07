@@ -53,8 +53,9 @@ More setup steps will be added soon.
 
 ## ▶️ Usage
 
-```bash
+
 # Run the application
+```bash
 python app.py
 ```
 
