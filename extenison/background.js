@@ -1,5 +1,42 @@
+const TRUSTED_SITES = [
+  "google.com",
+  "amazon.in",
+  "amazon.com",
+  "github.com",
+  "claude.ai",
+  "chat.openai.com",
+  "youtube.com",
+  "linkedin.com",
+  "microsoft.com",
+  "apple.com"
+];
+
+// 🔹 Check trusted domains
+function isTrusted(url) {
+  return TRUSTED_SITES.some(site => url.includes(site));
+}
+
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete" && tab.url && tab.url.startsWith("http")) {
+
+    // ✅ SKIP TRUSTED SITES
+    if (isTrusted(tab.url)) {
+      console.log("✅ Trusted site, skipping:", tab.url);
+
+      chrome.action.setBadgeText({
+        text: "SAFE",
+        tabId: tabId
+      });
+
+      chrome.action.setBadgeBackgroundColor({
+        color: "green",
+        tabId: tabId
+      });
+
+      return;
+    }
+
+    console.log("🔍 Scanning:", tab.url);
 
     fetch("http://127.0.0.1:5000/scan", {
       method: "POST",
@@ -22,12 +59,15 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         tabId: tabId
       });
 
-      if (percent >= 70) {
+      // 🚨 BLOCK ONLY IF VERY HIGH RISK
+      if (percent >= 85) {
+        console.log("🚨 Blocking phishing site:", tab.url);
+
         chrome.tabs.update(tabId, {
           url: chrome.runtime.getURL("blocked.html")
         });
       }
     })
-    .catch(err => console.log("Error:", err));
+    .catch(err => console.log("❌ Error:", err));
   }
 });
