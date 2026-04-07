@@ -4,14 +4,18 @@ from phishing_detector import check_phishing
 
 app = Flask(__name__)
 CORS(app)
+@app.route("/")
+def home():
+    return "VIGIL API is running 🚀"
 
 @app.route("/scan", methods=["POST"])
 def scan():
     data = request.get_json()
-    url = data.get("url")
 
-    if not url:
+    if not data or "url" not in data:
         return jsonify({"error": "No URL provided"}), 400
+
+    url = data.get("url")
 
     result = check_phishing(url)
     return jsonify(result)
